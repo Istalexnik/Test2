@@ -1,0 +1,74 @@
+﻿@page "/register"
+@using System.ComponentModel.DataAnnotations
+@inject HttpClient Http
+@inject NavigationManager NavigationManager
+@inject IAlertService AlertService
+
+<h3>Register</h3>
+
+<EditForm Model="@registerModel" OnValidSubmit="HandleValidSubmit">
+    <DataAnnotationsValidator />
+
+    <div class="mb-3 d-flex align-items-center">
+        <label for="email" class="form-label">Email</label>
+        <div style="flex-grow: 1; display: flex; align-items: center;">
+            <InputText id="email" class="form-control" @bind-Value="registerModel.Email" style="flex-grow: 1;" />
+            <ValidationMessage For="@(() => registerModel.Email)" />
+        </div>
+    </div>
+
+    <div class="mb-3 d-flex align-items-center">
+        <label for="password" class="form-label">Password</label>
+        <div style="flex-grow: 1; display: flex; align-items: center;">
+            <InputText id="password" type="password" class="form-control" @bind-Value="registerModel.Password" style="flex-grow: 1;" />
+            <ValidationMessage For="@(() => registerModel.Password)" />
+        </div>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Register</button>
+
+    <p>Already have an account? <NavLink href="/login">Login here</NavLink></p>
+</EditForm>
+
+@code {
+    private RegisterModel registerModel = new();
+
+    private async Task HandleValidSubmit()
+    {
+        try
+        {
+            var response = await Http.PostAsJsonAsync("register", registerModel);
+
+            if (response.IsSuccessStatusCode)
+            {
+                // Registration successful
+                await AlertService.ShowAlertAsync("Success", "Registration successful. Please check your email to confirm your account.", "OK");
+
+                // Navigate to email confirmation page with the email as a query parameter
+                var encodedEmail = Uri.EscapeDataString(registerModel.Email);
+                NavigationManager.NavigateTo($"/email-confirmation?email={encodedEmail}");
+            }
+            else
+            {
+                // Handle errors
+                var errorMessage = await response.Content.ReadAsStringAsync();
+                await AlertService.ShowAlertAsync("Error", $"Registration failed: {errorMessage}", "OK");
+            }
+        }
+        catch (Exception ex)
+        {
+            await AlertService.ShowAlertAsync("Error", $"An error occurred: {ex.Message}", "OK");
+        }
+    }
+
+    public class RegisterModel
+    {
+        [Required]
+        [EmailAddress]
+        public string Email { get; set; } = string.Empty;
+
+        [Required]
+        [MinLength(5)]
+        public string Password { get; set; } = string.Empty;
+    }
+}
