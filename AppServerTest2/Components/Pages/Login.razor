@@ -1,8 +1,8 @@
 ﻿@page "/login"
-@using System.ComponentModel.DataAnnotations
 @inject HttpClient Http
 @inject NavigationManager NavigationManager
 @inject IAlertService AlertService
+@inject ILogger<Login> Logger
 
 <h3 class="text-center">Login</h3>
 
@@ -35,11 +35,21 @@
     {
         try
         {
+            // Log the outgoing request
+            Logger.LogInformation("Sending login request: {@LoginModel}", loginModel);
+
             var response = await Http.PostAsJsonAsync("login", loginModel);
+
+            // Log the raw response
+            var responseContent = await response.Content.ReadAsStringAsync();
+            Logger.LogInformation("Received response: Status Code {StatusCode}, Content: {ResponseContent}", response.StatusCode, responseContent);
 
             if (response.IsSuccessStatusCode)
             {
                 var loginResponse = await response.Content.ReadFromJsonAsync<LoginResponse>();
+
+                // Log success and token information
+                Logger.LogInformation("Login successful. Tokens received: {@LoginResponse}", loginResponse);
 
                 // Store tokens securely
                 await SecureStorage.SetAsync("AccessToken", loginResponse!.AccessToken);
@@ -51,13 +61,17 @@
             }
             else
             {
+                // Log error response
+                Logger.LogWarning("Login failed with Status Code {StatusCode} and Content: {ResponseContent}", response.StatusCode, responseContent);
+
                 // Handle errors
-                var errorMessage = await response.Content.ReadAsStringAsync();
-                await AlertService.ShowAlertAsync("Error", $"Login failed: {errorMessage}", "OK");
+                await AlertService.ShowAlertAsync("Error", $"Login failed: {responseContent}", "OK");
             }
         }
         catch (Exception ex)
         {
+            // Log exception details
+            Logger.LogError("An error occurred during login: {Message}", ex.Message);
             await AlertService.ShowAlertAsync("Error", $"An error occurred: {ex.Message}", "OK");
         }
     }

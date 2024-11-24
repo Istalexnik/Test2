@@ -1,31 +1,31 @@
 ﻿@page "/register"
-@using System.ComponentModel.DataAnnotations
 @inject HttpClient Http
 @inject NavigationManager NavigationManager
 @inject IAlertService AlertService
+@inject ILogger<Register> Logger
 
 <h3 class="text-center">Register</h3>
 
 <EditForm Model="@registerModel" OnValidSubmit="HandleValidSubmit" class="container my-4">
     <DataAnnotationsValidator />
 
-        <div class="mb-3">
-            <label for="email" class="form-label">Email</label>
-            <InputText id="email" type="email" class="form-control" @bind-Value="registerModel.Email" />
-            <ValidationMessage For="@(() => registerModel.Email)" />
-        </div>
+    <div class="mb-3">
+        <label for="email" class="form-label">Email</label>
+        <InputText id="email" type="email" class="form-control" @bind-Value="registerModel.Email" />
+        <ValidationMessage For="@(() => registerModel.Email)" />
+    </div>
 
-        <div class="mb-3">
-            <label for="password" class="form-label">Password</label>
-            <InputText id="password" type="password" class="form-control" @bind-Value="registerModel.Password" />
-            <ValidationMessage For="@(() => registerModel.Password)" />
-        </div>
+    <div class="mb-3">
+        <label for="password" class="form-label">Password</label>
+        <InputText id="password" type="password" class="form-control" @bind-Value="registerModel.Password" />
+        <ValidationMessage For="@(() => registerModel.Password)" />
+    </div>
 
-        <div class="mb-3">
-            <label for="confirmPassword" class="form-label">Confirm Password</label>
-            <InputText id="confirmPassword" type="password" class="form-control" @bind-Value="registerModel.ConfirmPassword" />
-            <ValidationMessage For="@(() => registerModel.ConfirmPassword)" />
-        </div>
+    <div class="mb-3">
+        <label for="confirmPassword" class="form-label">Confirm Password</label>
+        <InputText id="confirmPassword" type="password" class="form-control" @bind-Value="registerModel.ConfirmPassword" />
+        <ValidationMessage For="@(() => registerModel.ConfirmPassword)" />
+    </div>
 
     <button type="submit" class="btn btn-primary w-100 mb-3">Register</button>
 
@@ -33,7 +33,6 @@
         Already have an account? <NavLink href="/login">Login here</NavLink>
     </p>
 </EditForm>
-
 
 @code {
     private RegisterModel registerModel = new();
@@ -48,7 +47,14 @@
 
         try
         {
+            // Log the outgoing request
+            Logger.LogInformation("Sending registration request: {@RegisterModel}", registerModel);
+
             var response = await Http.PostAsJsonAsync("register", registerModel);
+
+            // Log the raw response
+            var responseContent = await response.Content.ReadAsStringAsync();
+            Logger.LogInformation("Received response: Status Code {StatusCode}, Content: {ResponseContent}", response.StatusCode, responseContent);
 
             if (response.IsSuccessStatusCode)
             {
@@ -62,12 +68,12 @@
             else
             {
                 // Handle errors
-                var errorMessage = await response.Content.ReadAsStringAsync();
-                await AlertService.ShowAlertAsync("Error", $"Registration failed: {errorMessage}", "OK");
+                await AlertService.ShowAlertAsync("Error", $"Registration failed: {responseContent}", "OK");
             }
         }
         catch (Exception ex)
         {
+            Logger.LogError("An error occurred during registration: {Message}", ex.Message);
             await AlertService.ShowAlertAsync("Error", $"An error occurred: {ex.Message}", "OK");
         }
     }

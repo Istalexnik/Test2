@@ -1,9 +1,8 @@
 ﻿@page "/email-confirmation"
-@using System.ComponentModel.DataAnnotations
-@using Microsoft.AspNetCore.WebUtilities
 @inject HttpClient Http
 @inject NavigationManager NavigationManager
 @inject IAlertService AlertService
+@inject ILogger<EmailConfirmation> Logger
 
 <h3 class="text-center">Email Confirmation</h3>
 
@@ -26,15 +25,25 @@
 
     protected override void OnInitialized()
     {
-        var uri = NavigationManager.ToAbsoluteUri(NavigationManager.Uri);
-        if (QueryHelpers.ParseQuery(uri.Query).TryGetValue("email", out var email))
+        try
         {
-            confirmationModel.Email = email!;
+            var uri = NavigationManager.ToAbsoluteUri(NavigationManager.Uri);
+            if (QueryHelpers.ParseQuery(uri.Query).TryGetValue("email", out var email))
+            {
+                confirmationModel.Email = email!;
+                Logger.LogInformation("Email for confirmation retrieved: {Email}", confirmationModel.Email);
+            }
+            else
+            {
+                Logger.LogWarning("Email query parameter is missing.");
+                AlertService.ShowAlertAsync("Error", "Email is required for confirmation.", "OK");
+                NavigationManager.NavigateTo("/register");
+            }
         }
-        else
+        catch (Exception ex)
         {
-            // Handle the case where the email is not provided
-            AlertService.ShowAlertAsync("Error", "Email is required for confirmation.", "OK");
+            Logger.LogError("An error occurred while parsing the email query parameter: {Message}", ex.Message);
+            AlertService.ShowAlertAsync("Error", "An error occurred. Please try again.", "OK");
             NavigationManager.NavigateTo("/register");
         }
     }
@@ -43,24 +52,36 @@
     {
         try
         {
+            // Log the outgoing confirmation request
+            Logger.LogInformation("Sending email confirmation request: {@ConfirmationModel}", confirmationModel);
+
             var response = await Http.PostAsJsonAsync("confirm-email", confirmationModel);
+
+            // Log the raw response
+            var responseContent = await response.Content.ReadAsStringAsync();
+            Logger.LogInformation("Received response: Status Code {StatusCode}, Content: {ResponseContent}", response.StatusCode, responseContent);
 
             if (response.IsSuccessStatusCode)
             {
                 // Confirmation successful
+                Logger.LogInformation("Email confirmed successfully for {Email}", confirmationModel.Email);
                 await AlertService.ShowAlertAsync("Success", "Email confirmed successfully. You can now log in.", "OK");
                 NavigationManager.NavigateTo("/login");
             }
             else
             {
+                // Log error response
+                Logger.LogWarning("Email confirmation failed with Status Code {StatusCode} and Content: {ResponseContent}", response.StatusCode, responseContent);
+
                 // Handle errors
-                var errorMessage = await response.Content.ReadAsStringAsync();
-                await AlertService.ShowAlertAsync("Error", $"Confirmation failed: {errorMessage}", "OK");
+                await AlertService.ShowAlertAsync("Error", $"Confirmation failed: {responseContent}", "OK");
                 confirmationModel.ConfirmationCode = string.Empty;
             }
         }
         catch (Exception ex)
         {
+            // Log exception details
+            Logger.LogError("An error occurred during email confirmation: {Message}", ex.Message);
             await AlertService.ShowAlertAsync("Error", $"An error occurred: {ex.Message}", "OK");
         }
     }

@@ -2,6 +2,7 @@
 @inherits LayoutComponentBase
 @inject IHttpClientFactory HttpClientFactory
 @inject NavigationManager NavigationManager
+@inject ILogger<Dashboard> Logger
 
 <h3>Dashboard</h3>
 
@@ -12,31 +13,56 @@
 
     protected override async Task OnInitializedAsync()
     {
-        var response = await Http.GetAsync("dashboard");
+        try
+        {
+            // Log dashboard initialization
+            Logger.LogInformation("Initializing dashboard at {Time}", DateTime.Now);
 
-        if (response.IsSuccessStatusCode)
-        {
-            // Handle successful response
-        }
-        else if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
-        {
-            // Handle unauthorized access (e.g., refresh token)
-            var currentPage = Application.Current?.Windows.FirstOrDefault()?.Page as Page;
-            if (currentPage != null)
+            var response = await Http.GetAsync("dashboard");
+
+            // Log the response status code
+            Logger.LogInformation("Received response for dashboard data: Status Code {StatusCode}", response.StatusCode);
+
+            if (response.IsSuccessStatusCode)
             {
-                await currentPage.DisplayAlert("Session Expired", "Your session has expired. Please log in again.", "OK");
+                // Handle successful response
+                Logger.LogInformation("Dashboard data loaded successfully.");
             }
+            else if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                // Handle unauthorized access
+                Logger.LogWarning("Unauthorized access detected. Navigating to login page.");
 
-            NavigationManager.NavigateTo("/login");
+                var currentPage = Application.Current?.Windows.FirstOrDefault()?.Page as Page;
+                if (currentPage != null)
+                {
+                    await currentPage.DisplayAlert("Session Expired", "Your session has expired. Please log in again.", "OK");
+                }
+
+                NavigationManager.NavigateTo("/login");
+            }
+            else
+            {
+                // Log the error response
+                var errorMessage = await response.Content.ReadAsStringAsync();
+                Logger.LogError("Failed to load dashboard data. Status Code: {StatusCode}, Error: {ErrorMessage}", response.StatusCode, errorMessage);
+
+                var currentPage = Application.Current?.Windows.FirstOrDefault()?.Page as Page;
+                if (currentPage != null)
+                {
+                    await currentPage.DisplayAlert("Error", $"An error occurred: {errorMessage}", "OK");
+                }
+            }
         }
-        else
+        catch (Exception ex)
         {
-            // Handle other errors
-            var errorMessage = await response.Content.ReadAsStringAsync();
+            // Log exception details
+            Logger.LogError("An error occurred while initializing the dashboard: {Message}", ex.Message);
+
             var currentPage = Application.Current?.Windows.FirstOrDefault()?.Page as Page;
             if (currentPage != null)
             {
-                await currentPage.DisplayAlert("Error", $"An error occurred: {errorMessage}", "OK");
+                await currentPage.DisplayAlert("Error", $"An unexpected error occurred: {ex.Message}", "OK");
             }
         }
     }

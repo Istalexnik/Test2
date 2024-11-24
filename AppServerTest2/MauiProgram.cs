@@ -53,7 +53,7 @@ public static class ApiConfig
     public static string GetBaseUrl()
     {
 #if ANDROID 
-          return "https://mint-quick-toad.ngrok-free.app"; // return "https://10.0.2.2:7078/"; 
+          return "https://mint-quick-toad.ngrok-free.app"; // ngrok http --domain=mint-quick-toad.ngrok-free.app https://localhost:7078 // return "https://10.0.2.2:7078/"; 
 #else
         return "https://localhost:7078/"; //return "https://192.168.50.238:7078/"; 
 #endif
