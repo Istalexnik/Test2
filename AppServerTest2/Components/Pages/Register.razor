@@ -9,10 +9,6 @@
 <EditForm Model="@registerModel" OnValidSubmit="HandleValidSubmit" class="container min-vh-100 d-flex flex-column justify-content-between">
     <DataAnnotationsValidator />
 
-    <div class="mb-4 flex-grow-1 overflow-auto">
-        <ValidationSummary class="alert alert-danger h-100" />
-    </div>
-
     <div style="position: fixed; bottom: 0; left: 0; right: 0; background: white; box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1); padding: 1rem;">
         <div class="mb-3">
             <label for="email" class="form-label">Email</label>
