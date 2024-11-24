@@ -1,13 +1,38 @@
 ﻿@inherits LayoutComponentBase
 
-<div class="page">
-    <div class="sidebar">
-        <NavMenu />
-    </div>
+<div class="page d-flex flex-column min-vh-100">
+    <!-- Status Bar Safe Area -->
+    <div class="status-bar-safe-area"></div>
 
-    <main>
-        <article class="content px-4">
+    <!-- Top App Bar -->
+    <header class="top-bar navbar navbar-light fixed-top">
+        <div class="container-fluid">
+            <span class="navbar-brand mx-auto text-center">App Name</span>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow-1 d-flex flex-column mt-5 pt-4">
+        <article class="content container px-4">
             @Body
         </article>
     </main>
+
+    <!-- Bottom Navigation -->
+<nav class="navbar navbar-light bg-light fixed-bottom">
+    <div class="container-fluid d-flex justify-content-around">
+        <NavLink class="nav-item text-center" href="/register" Match="NavLinkMatch.All" aria-label="Register">
+            <i class="bi bi-person-add"></i>
+            <span>Register</span>
+        </NavLink>
+        <NavLink class="nav-item text-center" href="/login" Match="NavLinkMatch.All" aria-label="Login">
+            <i class="bi bi-key"></i>
+            <span>Login</span>
+        </NavLink>
+    </div>
+</nav>
+
+
+
+
 </div>

@@ -4,28 +4,28 @@
 @inject NavigationManager NavigationManager
 @inject IAlertService AlertService
 
-<h3>Login</h3>
+<h3 class="text-center">Login</h3>
 
-<EditForm Model="@loginModel" OnValidSubmit="HandleValidSubmit" class="container min-vh-100 d-flex flex-column justify-content-between">
+<EditForm Model="@loginModel" OnValidSubmit="HandleValidSubmit" class="container my-4">
     <DataAnnotationsValidator />
 
-    <div style="position: fixed; bottom: 0; left: 0; right: 0; background: white; box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1); padding: 1rem;">
-        <div class="mb-3">
-            <label for="email" class="form-label">Email</label>
-            <InputText id="email" class="form-control w-100" @bind-Value="loginModel.Email" />
-            <ValidationMessage For="@(() => loginModel.Email)" />
-        </div>
-
-        <div class="mb-3">
-            <label for="password" class="form-label">Password</label>
-            <InputText id="password" type="password" class="form-control w-100" @bind-Value="loginModel.Password" />
-            <ValidationMessage For="@(() => loginModel.Password)" />
-        </div>
-
-        <button type="submit" class="btn btn-primary w-100 mb-3">Login</button>
-
-        <p class="text-center">Don't have an account? <NavLink href="/register">Register here</NavLink></p>
+    <div class="mb-3">
+        <label for="email" class="form-label">Email</label>
+        <InputText id="email" type="email" class="form-control" @bind-Value="loginModel.Email" />
+        <ValidationMessage For="@(() => loginModel.Email)" />
     </div>
+
+    <div class="mb-3">
+        <label for="password" class="form-label">Password</label>
+        <InputText id="password" type="password" class="form-control" @bind-Value="loginModel.Password" />
+        <ValidationMessage For="@(() => loginModel.Password)" />
+    </div>
+
+    <button type="submit" class="btn btn-primary w-100 mb-3">Login</button>
+
+    <p class="text-center">
+        Don't have an account? <NavLink href="/register">Register here</NavLink>
+    </p>
 </EditForm>
 
 @code {

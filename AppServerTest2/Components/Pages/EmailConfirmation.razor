@@ -5,24 +5,21 @@
 @inject NavigationManager NavigationManager
 @inject IAlertService AlertService
 
-<h3>Email Confirmation</h3>
+<h3 class="text-center">Email Confirmation</h3>
 
-<EditForm Model="@confirmationModel" OnValidSubmit="HandleValidSubmit" class="container min-vh-100 d-flex flex-column justify-content-between">
+<EditForm Model="@confirmationModel" OnValidSubmit="HandleValidSubmit" class="container my-4">
     <DataAnnotationsValidator />
 
-    <div style="position: fixed; bottom: 0; left: 0; right: 0; background: white; box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1); padding: 1rem;" class="d-flex flex-column align-items-center">
-        <div class="mb-3 text-center">
-            <label for="code" class="form-label">Enter the 6-digit Confirmation Code</label>
-            <div class="d-flex justify-content-center">
-                <InputText id="code" class="form-control text-center w-auto px-3" maxlength="6" type="text" @bind-Value="confirmationModel.ConfirmationCode" />
-            </div>
-            <ValidationMessage For="@(() => confirmationModel.ConfirmationCode)" />
+    <div class="mb-3 text-center">
+        <label for="code" class="form-label">Enter the 6-digit Confirmation Code</label>
+        <div class="d-flex justify-content-center">
+            <InputText id="code" class="form-control text-center w-50" maxlength="6" type="text" @bind-Value="confirmationModel.ConfirmationCode" />
         </div>
-
-        <button type="submit" class="btn btn-primary mb-3 px-3">Confirm</button>
+        <ValidationMessage For="@(() => confirmationModel.ConfirmationCode)" />
     </div>
-</EditForm>
 
+    <button type="submit" class="btn btn-primary w-100">Confirm</button>
+</EditForm>
 
 @code {
     private ConfirmationModel confirmationModel = new();
@@ -75,6 +72,7 @@
         public string Email { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "Confirmation code is required.")]
+        [RegularExpression(@"^\d{6}$", ErrorMessage = "Please enter a valid 6-digit code.")]
         public string ConfirmationCode { get; set; } = string.Empty;
     }
 }
