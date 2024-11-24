@@ -6,28 +6,36 @@
 
 <h3>Register</h3>
 
-<EditForm Model="@registerModel" OnValidSubmit="HandleValidSubmit">
+<EditForm Model="@registerModel" OnValidSubmit="HandleValidSubmit" class="container min-vh-100 d-flex flex-column justify-content-between">
     <DataAnnotationsValidator />
 
-    <div class="mb-3 d-flex align-items-center">
-        <label for="email" class="form-label">Email</label>
-        <div style="flex-grow: 1; display: flex; align-items: center;">
-            <InputText id="email" class="form-control" @bind-Value="registerModel.Email" style="flex-grow: 1;" />
+    <div class="mb-4 flex-grow-1 overflow-auto">
+        <ValidationSummary class="alert alert-danger h-100" />
+    </div>
+
+    <div style="position: fixed; bottom: 0; left: 0; right: 0; background: white; box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1); padding: 1rem;">
+        <div class="mb-3">
+            <label for="email" class="form-label">Email</label>
+            <InputText id="email" type="email" class="form-control w-100" @bind-Value="registerModel.Email" />
             <ValidationMessage For="@(() => registerModel.Email)" />
         </div>
-    </div>
 
-    <div class="mb-3 d-flex align-items-center">
-        <label for="password" class="form-label">Password</label>
-        <div style="flex-grow: 1; display: flex; align-items: center;">
-            <InputText id="password" type="password" class="form-control" @bind-Value="registerModel.Password" style="flex-grow: 1;" />
+        <div class="mb-3">
+            <label for="confirmEmail" class="form-label">Confirm Email</label>
+            <InputText id="confirmEmail" type="email" class="form-control w-100" @bind-Value="registerModel.ConfirmEmail" />
+            <ValidationMessage For="@(() => registerModel.ConfirmEmail)" />
+        </div>
+
+        <div class="mb-3">
+            <label for="password" class="form-label">Password</label>
+            <InputText id="password" type="password" class="form-control w-100" @bind-Value="registerModel.Password" />
             <ValidationMessage For="@(() => registerModel.Password)" />
         </div>
+
+        <button type="submit" class="btn btn-primary w-100 mb-3">Register</button>
+
+        <p class="text-center">Already have an account? <NavLink href="/login">Login here</NavLink></p>
     </div>
-
-    <button type="submit" class="btn btn-primary">Register</button>
-
-    <p>Already have an account? <NavLink href="/login">Login here</NavLink></p>
 </EditForm>
 
 @code {
@@ -35,6 +43,12 @@
 
     private async Task HandleValidSubmit()
     {
+        if (registerModel.Email != registerModel.ConfirmEmail)
+        {
+            await AlertService.ShowAlertAsync("Error", "Email and Confirm Email must match.", "OK");
+            return;
+        }
+
         try
         {
             var response = await Http.PostAsJsonAsync("register", registerModel);
@@ -68,7 +82,12 @@
         public string Email { get; set; } = string.Empty;
 
         [Required]
-        [MinLength(5)]
+        [EmailAddress]
+        [Compare("Email", ErrorMessage = "Email and Confirm Email must match.")]
+        public string ConfirmEmail { get; set; } = string.Empty;
+
+        [Required]
+        [MinLength(6)]
         public string Password { get; set; } = string.Empty;
     }
 }

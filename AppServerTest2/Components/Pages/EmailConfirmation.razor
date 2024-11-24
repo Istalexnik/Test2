@@ -7,23 +7,26 @@
 
 <h3>Email Confirmation</h3>
 
-<EditForm Model="@confirmationModel" OnValidSubmit="HandleValidSubmit">
+<EditForm Model="@confirmationModel" OnValidSubmit="HandleValidSubmit" class="container min-vh-100 d-flex flex-column justify-content-between">
     <DataAnnotationsValidator />
-    <ValidationSummary />
 
-    <!-- Email field removed -->
-
-    <div class="mb-3">
-        <label for="code" class="form-label">Confirmation Code</label>
-        <InputText id="code" class="form-control" @bind-Value="confirmationModel.ConfirmationCode" />
-        <ValidationMessage For="@(() => confirmationModel.ConfirmationCode)" />
+    <div class="mb-4 flex-grow-1 overflow-auto">
+        <ValidationSummary class="alert alert-danger h-100" />
     </div>
 
-    <button type="submit" class="btn btn-primary">Confirm Email</button>
+    <div style="position: fixed; bottom: 0; left: 0; right: 0; background: white; box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1); padding: 1rem;" class="d-flex flex-column align-items-center">
+        <div class="mb-3 text-center">
+            <label for="code" class="form-label">Enter the 6-digit Confirmation Code</label>
+            <div class="d-flex justify-content-center">
+                <InputText id="code" class="form-control text-center w-auto px-3" maxlength="6" type="text" @bind-Value="confirmationModel.ConfirmationCode" />
+            </div>
+            <ValidationMessage For="@(() => confirmationModel.ConfirmationCode)" />
+        </div>
 
-    <p>Email: @confirmationModel.Email</p>
-
+        <button type="submit" class="btn btn-primary mb-3 px-3">Confirm</button>
+    </div>
 </EditForm>
+
 
 @code {
     private ConfirmationModel confirmationModel = new();
@@ -34,7 +37,6 @@
         if (QueryHelpers.ParseQuery(uri.Query).TryGetValue("email", out var email))
         {
             confirmationModel.Email = email!;
-            Console.WriteLine($"Email set to: {confirmationModel.Email}");
         }
         else
         {
@@ -43,7 +45,6 @@
             NavigationManager.NavigateTo("/register");
         }
     }
-
 
     private async Task HandleValidSubmit()
     {
@@ -55,7 +56,6 @@
             {
                 // Confirmation successful
                 await AlertService.ShowAlertAsync("Success", "Email confirmed successfully. You can now log in.", "OK");
-                // Navigate to login page
                 NavigationManager.NavigateTo("/login");
             }
             else
@@ -73,11 +73,11 @@
 
     public class ConfirmationModel
     {
-        [Required]
-        [EmailAddress]
+        [Required(ErrorMessage = "Email is required.")]
+        [EmailAddress(ErrorMessage = "Invalid email address format.")]
         public string Email { get; set; } = string.Empty;
 
-        [Required]
+        [Required(ErrorMessage = "Confirmation code is required.")]
         public string ConfirmationCode { get; set; } = string.Empty;
     }
 }
