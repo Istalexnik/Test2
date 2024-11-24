@@ -16,15 +16,15 @@
     </div>
 
     <div class="mb-3">
-        <label for="confirmEmail" class="form-label">Confirm Email</label>
-        <InputText id="confirmEmail" type="email" class="form-control" @bind-Value="registerModel.ConfirmEmail" />
-        <ValidationMessage For="@(() => registerModel.ConfirmEmail)" />
-    </div>
-
-    <div class="mb-3">
         <label for="password" class="form-label">Password</label>
         <InputText id="password" type="password" class="form-control" @bind-Value="registerModel.Password" />
         <ValidationMessage For="@(() => registerModel.Password)" />
+    </div>
+
+    <div class="mb-3">
+        <label for="confirmPassword" class="form-label">Confirm Password</label>
+        <InputText id="confirmPassword" type="password" class="form-control" @bind-Value="registerModel.ConfirmPassword" />
+        <ValidationMessage For="@(() => registerModel.ConfirmPassword)" />
     </div>
 
     <button type="submit" class="btn btn-primary w-100 mb-3">Register</button>
@@ -39,9 +39,9 @@
 
     private async Task HandleValidSubmit()
     {
-        if (registerModel.Email != registerModel.ConfirmEmail)
+        if (registerModel.Password != registerModel.ConfirmPassword)
         {
-            await AlertService.ShowAlertAsync("Error", "Email and Confirm Email must match.", "OK");
+            await AlertService.ShowAlertAsync("Error", "Password and Confirm Password must match.", "OK");
             return;
         }
 
@@ -77,13 +77,12 @@
         [EmailAddress(ErrorMessage = "Please enter a valid email address.")]
         public string Email { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "Confirm Email is required.")]
-        [EmailAddress(ErrorMessage = "Please enter a valid email address.")]
-        [Compare("Email", ErrorMessage = "Email and Confirm Email must match.")]
-        public string ConfirmEmail { get; set; } = string.Empty;
-
         [Required(ErrorMessage = "Password is required.")]
         [MinLength(6, ErrorMessage = "Password must be at least 6 characters long.")]
         public string Password { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "Confirm Password is required.")]
+        [Compare("Password", ErrorMessage = "Password and Confirm Password must match.")]
+        public string ConfirmPassword { get; set; } = string.Empty;
     }
 }
