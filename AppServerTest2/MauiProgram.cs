@@ -31,13 +31,13 @@ public static class MauiProgram
 #endif
         builder.Services.AddSingleton<HttpClient>(sp => new HttpClient
         {
-            BaseAddress = new Uri("https://localhost:7078/")
+            BaseAddress = new Uri(ApiConfig.GetBaseUrl())
         });
 
         // Configure HttpClient with AuthMessageHandler
         builder.Services.AddHttpClient("AuthorizedClient", client =>
         {
-            client.BaseAddress = new Uri("https://localhost:7078/"); // Base URL for your API
+            client.BaseAddress = new Uri(ApiConfig.GetBaseUrl()); // Base URL for your API
         })
         .AddHttpMessageHandler<AuthMessageHandler>();
 
@@ -47,3 +47,16 @@ public static class MauiProgram
         return builder.Build();
     }
 }
+
+public static class ApiConfig
+{
+    public static string GetBaseUrl()
+    {
+#if ANDROID 
+           return "https://10.0.2.2:7078/"; 
+#else
+        return "https://localhost:7078/"; //return "https://192.168.50.238:7078/"; 
+#endif
+    }
+}
+
