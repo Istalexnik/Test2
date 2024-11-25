@@ -25,4 +25,19 @@ public class SecureStorageAuthenticationStateProvider : AuthenticationStateProvi
         // Create unauthenticated state
         return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()));
     }
+
+    // Method to notify that the authentication state has changed
+    public void NotifyUserAuthentication()
+    {
+        var authenticatedUser = new ClaimsPrincipal(new ClaimsIdentity(new[] { new Claim(ClaimTypes.Name, "AuthenticatedUser") }, "Bearer"));
+        var authState = Task.FromResult(new AuthenticationState(authenticatedUser));
+        NotifyAuthenticationStateChanged(authState);
+    }
+
+    public void NotifyUserLogout()
+    {
+        var anonymousUser = new ClaimsPrincipal(new ClaimsIdentity());
+        var authState = Task.FromResult(new AuthenticationState(anonymousUser));
+        NotifyAuthenticationStateChanged(authState);
+    }
 }

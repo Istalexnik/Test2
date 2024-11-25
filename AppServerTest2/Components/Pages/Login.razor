@@ -3,6 +3,8 @@
 @inject NavigationManager NavigationManager
 @inject IAlertService AlertService
 @inject ILogger<Login> Logger
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject SecureStorageService SecureStorageService
 
 <h3 class="text-center">Login</h3>
 
@@ -26,6 +28,10 @@
     <p class="text-center">
         Don't have an account? <NavLink href="/register">Register here</NavLink>
     </p>
+
+    <p class="text-center">
+        Forgot your password? <NavLink href="/forgot-password">Reset it here</NavLink>
+    </p>
 </EditForm>
 
 @code {
@@ -35,12 +41,10 @@
     {
         try
         {
-            // Log the outgoing request
             Logger.LogInformation("Sending login request: {@LoginModel}", loginModel);
 
             var response = await Http.PostAsJsonAsync("login", loginModel);
 
-            // Log the raw response
             var responseContent = await response.Content.ReadAsStringAsync();
             Logger.LogInformation("Received response: Status Code {StatusCode}, Content: {ResponseContent}", response.StatusCode, responseContent);
 
@@ -48,29 +52,27 @@
             {
                 var loginResponse = await response.Content.ReadFromJsonAsync<LoginResponse>();
 
-                // Log success and token information
                 Logger.LogInformation("Login successful. Tokens received: {@LoginResponse}", loginResponse);
 
-                // Store tokens securely
-                await SecureStorage.SetAsync("AccessToken", loginResponse!.AccessToken);
-                await SecureStorage.SetAsync("RefreshToken", loginResponse.RefreshToken);
+                await SecureStorageService.SetAccessTokenAsync(loginResponse!.AccessToken);
+                await SecureStorageService.SetRefreshTokenAsync(loginResponse.RefreshToken);
 
-                // Navigate to the dashboard or home page
+                if (AuthenticationStateProvider is SecureStorageAuthenticationStateProvider authProvider)
+                {
+                    authProvider.NotifyUserAuthentication();
+                }
+
                 await AlertService.ShowAlertAsync("Success", "Login successful.", "OK");
                 NavigationManager.NavigateTo("/dashboard");
             }
             else
             {
-                // Log error response
                 Logger.LogWarning("Login failed with Status Code {StatusCode} and Content: {ResponseContent}", response.StatusCode, responseContent);
-
-                // Handle errors
                 await AlertService.ShowAlertAsync("Error", $"Login failed: {responseContent}", "OK");
             }
         }
         catch (Exception ex)
         {
-            // Log exception details
             Logger.LogError("An error occurred during login: {Message}", ex.Message);
             await AlertService.ShowAlertAsync("Error", $"An error occurred: {ex.Message}", "OK");
         }

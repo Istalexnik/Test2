@@ -1,7 +1,5 @@
 ﻿@page "/register"
 @inject HttpClient Http
-@inject NavigationManager NavigationManager
-@inject IAlertService AlertService
 @inject ILogger<Register> Logger
 
 <h3 class="text-center">Register</h3>
@@ -31,6 +29,10 @@
 
     <p class="text-center">
         Already have an account? <NavLink href="/login">Login here</NavLink>
+    </p>
+
+    <p class="text-center">
+        Forgot your password? <NavLink href="/forgot-password">Reset it here</NavLink>
     </p>
 </EditForm>
 
