@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using AppServerTest2.Services;
+using Microsoft.AspNetCore.Components.Authorization;
 
 
 namespace AppServerTest2;
@@ -18,6 +19,11 @@ public static class MauiProgram
         builder.Services.AddMauiBlazorWebView();
         // Register SecureStorageService
         builder.Services.AddSingleton<SecureStorageService>();
+
+        builder.Services.AddAuthorizationCore();
+        builder.Services.AddScoped<AuthenticationStateProvider, SecureStorageAuthenticationStateProvider>();
+
+
 
         // Register AuthMessageHandler
         builder.Services.AddTransient<AuthMessageHandler>();

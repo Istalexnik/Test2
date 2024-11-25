@@ -1,0 +1,18 @@
+﻿@page "/"
+
+@inject NavigationManager Navigation
+@inject SecureStorageService SecureStorageService
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        var accessToken = await SecureStorageService.GetAccessTokenAsync();
+
+        Console.WriteLine($"Access Token: {accessToken ?? "null"}");
+
+        var isAuthenticated = !string.IsNullOrEmpty(accessToken);
+        Console.WriteLine($"Is Authenticated: {isAuthenticated}");
+
+        Navigation.NavigateTo(isAuthenticated ? "/dashboard" : "/login", true);
+    }
+}

@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace AppServerTest2.Services;
+﻿namespace AppServerTest2.Services;
 public class AlertService : IAlertService
 {
     public async Task ShowAlertAsync(string title, string message, string cancelButton)

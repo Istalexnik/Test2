@@ -3,6 +3,9 @@
 @inject IHttpClientFactory HttpClientFactory
 @inject NavigationManager NavigationManager
 @inject ILogger<Dashboard> Logger
+@inject AuthenticationStateProvider AuthenticationStateProvider
+
+
 
 <h3>Dashboard</h3>
 
@@ -13,6 +16,13 @@
 
     protected override async Task OnInitializedAsync()
     {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        if (!authState.User.Identity?.IsAuthenticated ?? true)
+        {
+            NavigationManager.NavigateTo("/login", true);
+        }
+
+
         try
         {
             // Log dashboard initialization
