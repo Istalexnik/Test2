@@ -1,7 +1,4 @@
 ﻿@inherits LayoutComponentBase
-@inject SecureStorageService SecureStorageService
-@inject NavigationManager Navigation
-@inject AuthenticationStateProvider AuthenticationStateProvider
 
 <div class="page d-flex flex-column min-vh-100">
     <!-- Status Bar Safe Area -->
@@ -65,7 +62,7 @@
             authProvider.NotifyUserLogout();
         }
 
-        Navigation.NavigateTo("/login", true);
+        NavigationManager.NavigateTo("/login", true);
     }
 }
 
