@@ -39,6 +39,16 @@
 @code {
     private RegisterModel registerModel = new();
 
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        if (authState.User.Identity?.IsAuthenticated ?? false)
+        {
+            NavigationManager.NavigateTo("/dashboard", forceLoad: false, replace: true);
+        }
+    }
+
+
     private async Task HandleValidSubmit()
     {
         if (registerModel.Password != registerModel.ConfirmPassword)

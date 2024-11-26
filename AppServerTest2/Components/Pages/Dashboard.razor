@@ -15,7 +15,7 @@
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
         if (!authState.User.Identity?.IsAuthenticated ?? true)
         {
-            NavigationManager.NavigateTo("/login", true);
+            NavigationManager.NavigateTo("/login", forceLoad: true, replace: true);
         }
 
 

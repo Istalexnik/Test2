@@ -62,7 +62,7 @@
             authProvider.NotifyUserLogout();
         }
 
-        NavigationManager.NavigateTo("/login", true);
+        NavigationManager.NavigateTo("/login", forceLoad: true, replace: true);
     }
 }
 

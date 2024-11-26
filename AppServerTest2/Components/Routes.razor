@@ -1,7 +1,4 @@
-﻿@using AppServerTest2.Components.Pages
-@using AppServerTest2.Components.Views
-
-<CascadingAuthenticationState>
+﻿<CascadingAuthenticationState>
     <Router AppAssembly="@typeof(App).Assembly">
         <Found Context="routeData">
             @if (IsRouteAnonymous(routeData))
@@ -12,7 +9,7 @@
             {
                 <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(Layout.MainLayout)">
                     <NotAuthorized>
-                        <RedirectToLogin />
+                        <Home />
                     </NotAuthorized>
                 </AuthorizeRouteView>
             }
@@ -27,6 +24,8 @@
 </CascadingAuthenticationState>
 
 @code {
+
+
     private bool IsRouteAnonymous(RouteData routeData)
     {
         var page = routeData.PageType;
